@@ -22,30 +22,27 @@
           <v-divider></v-divider>
           <v-card-text>
             <v-form ref="form">
-              <v-layout wrap>
-                <v-flex xs12 md3>
-                  <v-text-field label="Artist, band etc..." v-model="form.artist" :rules="form.rules.required" required></v-text-field>
+              <v-layout wrap justify-space-between>
+                <v-flex xs12 md6>
+                  <v-text-field label="Artist, band, name, etc..." v-model="form.data.artist" :rules="form.rules.required" required></v-text-field>
                 </v-flex>
-                <v-spacer></v-spacer>
-                <v-flex xs12 md4>
-                  <v-text-field label="Event name..." v-model="form.name" :rules="form.rules.required" required></v-text-field>
+                <v-flex xs12 md5>
+                  <v-select label="Type" :items="form.categories" v-model="form.data.category" :rules="form.rules.required" required menu-props="offsetY"></v-select>
                 </v-flex>
-                <v-spacer></v-spacer>
-                <v-flex xs12 md3>
-                  <v-text-field label="Where..." v-model="form.location" :rules="form.rules.required" required></v-text-field>
+                <v-flex xs12 md8>
+                  <v-text-field label="Where..." v-model="form.data.location" :rules="form.rules.required" required></v-text-field>
                 </v-flex>
                 <v-flex xs12 md3>
                   <v-menu full-width>
-                    <v-text-field slot="activator" :value="form.date" label="Date..." :rules="form.rules.required" required></v-text-field>
-                    <v-date-picker light v-model="form.date"></v-date-picker>
+                    <v-text-field slot="activator" :value="form.data.date" label="Date..." :rules="form.rules.required" required></v-text-field>
+                    <v-date-picker light v-model="form.data.date"></v-date-picker>
                   </v-menu>
                 </v-flex>
-                <v-spacer></v-spacer>
-                <v-flex xs12 md8>
-                  <v-text-field label="Link" v-model="form.link" :rules="form.rules.link" required></v-text-field>
+                <v-flex xs12>
+                  <v-text-field label="Link" v-model="form.data.link"></v-text-field>
                 </v-flex>
                 <v-flex xs12>
-                  <v-textarea label="Description" v-model="form.description" :rules="form.rules.required" required></v-textarea>
+                  <v-textarea label="Description" v-model="form.data.description" :rules="form.rules.required" required></v-textarea>
                 </v-flex>
                 <v-flex xs12>
                   <v-btn flat block class="primary" :loading="loading" @click="saveEvent">save</v-btn>
@@ -56,13 +53,12 @@
         </v-card>
       </v-flex>
     </v-layout>
-    <v-snackbar top :timeout="6000" color="primary" v-model="snackbar.show">
-      {{ snackbar.message }}
-    </v-snackbar>
   </v-container>
 </template>
 
 <script>
+import uuid from 'uuid/v4'
+
 export default {
     name: 'addEvent',
     data: () => {
@@ -71,23 +67,21 @@ export default {
           image: null,
           loading: false,
           form: {
-            artist: '',
-            name: '',
-            location: '',
-            date: '',
-            description: '',
-            link: '',
+            data: {
+              artist: '',
+              category: '',
+              location: '',
+              date: '',
+              description: '',
+              link: '',
+            },
+            categories: ['Live concert', 'Sport event', 'Cultural event', 'Artistic performance', 'Entertainment'],
             rules: {
               required: [ v => !!v || 'This field is required.' ],
               link: [
-                v => !!v || 'This field is required.',
                 v => /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})$/.test(v) || 'Enter valid link (with http://....).'
               ]
             }
-          },
-          snackbar: {
-            show: false,
-            message: ''
           }
         }
     },
@@ -112,7 +106,7 @@ export default {
         if (this.image) {
           return this.$firebase
             .storage()
-            .ref('images/' + this.image.name)
+            .ref('images/' + uuid())
             .put(this.image)
             .then(fileData => {
               return fileData.ref.getDownloadURL()
@@ -124,12 +118,12 @@ export default {
           .firestore()
           .collection('events')
           .add({
-            artist: this.form.artist,
-            name: this.form.name,
-            location: this.form.location,
-            date: this.form.date,
-            link: this.form.link,
-            description: this.form.description,
+            artist: this.form.data.artist,
+            category: this.form.data.category,
+            location: this.form.data.location,
+            date: this.form.data.date,
+            link: this.form.data.link,
+            description: this.form.data.description,
             imageUrl: url,
             authorId: this.$firebase.auth().currentUser.uid,
             timestamp: this.$firebase.firestore.Timestamp.fromDate(new Date()),
@@ -150,26 +144,33 @@ export default {
               })
               .then(() => {
                 this.loading = false
-                this.snackbar.message = 'Event uploaded successfully'
-                this.snackbar.show = true
+                this.$store.dispatch('SET_SNACKBAR', {
+                  type: 'success',
+                  message: 'Event created successfully.'
+                })
                 this.resetForm()
               }).catch(err => {
                 this.loading = false
-                this.snackbar.message = err.message
-                this.snackbar.show = true
+                this.$store.dispatch('SET_SNACKBAR', {
+                  type: 'error',
+                  message: err.message
+                })
               })
           } else {
             this.saveDetails()
             .then(() => {
               this.loading = false
-              this.snackbar.message = 'Event uploaded successfully'
-              this.snackbar.show = true
+              this.$store.dispatch('SET_SNACKBAR', {
+                type: 'success',
+                message: 'Event created successfully.'
+              })
               this.resetForm()
             }).catch(err => {
-              console.log(err)
               this.loading = false
-              this.snackbar.message = err.message
-              this.snackbar.show = true
+              this.$store.dispatch('SET_SNACKBAR', {
+                type: 'error',
+                message: err.message
+              })
             })
           }
         }

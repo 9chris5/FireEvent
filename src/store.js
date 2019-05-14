@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import firebase from 'firebase/app'
+import 'firebase/firestore'
 
 Vue.use(Vuex)
 
@@ -17,13 +18,13 @@ export default new Vuex.Store({
     }
   },
   mutations: {
-    setUser: state => {
-      state.user = firebase.auth().currentUser
+    SET_USER: (state, payload) => {
+      state.user = payload
     },
-    setUserData: (state, payload) => {
+    SET_USER_DATA: (state, payload) => {
       state.userData = payload
     },
-    showSnackbar: (state, payload) => {
+    SET_SNACKBAR: (state, payload) => {
       state.snackbar.type = payload.type
       state.snackbar.message = payload.message
       state.snackbar.multiline = (payload.message > 50) ? true : false
@@ -37,18 +38,36 @@ export default new Vuex.Store({
       }
 
       state.snackbar.show = true
+    },
+    CLEAR_STATE: state => {
+      state.user = null
+      state.userData = null
     }
   },
   actions: {
-    setUser: context => {
-      context.commit('setUser')
+    SET_USER: context => {
+      context.commit('SET_USER', firebase.auth().currentUser)
+    },
+    SET_USER_DATA: async context => {
+      try {
+        const snapshot = await firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid).get()
+        context.commit('SET_USER_DATA', snapshot.data())
+      } catch (err) {
+        console.log(err)
+      }
+    },
+    SET_SNACKBAR: (context, payload) => {
+      context.commit('SET_SNACKBAR', payload)
+    },
+    CLEAR_STATE: context => {
+      context.commit('CLEAR_STATE')
     }
   },
   getters: {
-    getUser: state => {
+    USER: state => {
       return state.user
     },
-    getUserData: state => {
+    USER_DATA: state => {
       return state.userData
     }
   }

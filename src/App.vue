@@ -22,21 +22,8 @@ export default {
     appFooter
   },
   created () {
-    this.$store.dispatch('setUser')
-    if (this.$store.state.user) {
-      this.$firebase
-        .firestore()
-        .collection('users')
-        .doc(this.$store.state.user.uid)
-        .get()
-        .then(snapshot => {
-          let data = snapshot.data()
-          this.$store.commit('setUserData', data)
-        })
-        .catch(err => {
-          console.log(err)
-        })
-    }
+    this.$store.dispatch('SET_USER')
+    this.$store.dispatch('SET_USER_DATA')
   }
 }
 </script>

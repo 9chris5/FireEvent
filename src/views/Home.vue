@@ -1,17 +1,17 @@
 <template>
   <div class="home">
-    <Parallax/>
+    <Header v-if="!this.$firebase.auth().currentUser"/>
     <v-container>
 
       <section class="my-3">
         <h2>Check out hottest events</h2>
         <v-divider class="my-3"></v-divider>
         <v-layout wrap style="margin: -8px">
-          <v-flex xs12 sm6 lg4 v-for="event in events" :key="event['.key']">
+          <v-flex xs12 sm6 lg3 v-for="event in events" :key="event['.key']">
             <Card :event="event"/>
           </v-flex>
           <v-flex xs12 ma-2 mt-5>
-            <v-btn outline block color="primary">show more events</v-btn>
+            <v-btn to="/browse-events" outline block color="primary">show more events</v-btn>
           </v-flex>
         </v-layout>
       </section>
@@ -48,13 +48,13 @@
 </template>
 
 <script>
-  import Parallax from '@/components/Home/Parallax'
+  import Header from '@/components/Home/Header'
   import Card from '@/components/Home/Card'
 
   export default {
     name: 'home',
     components: {
-      Parallax,
+      Header,
       Card
     },
     data: () => {
@@ -71,8 +71,8 @@
       this.$firebase
         .firestore()
         .collection('events')
-        .orderBy('timestamp', 'asc')
-        .limit(6)
+        .orderBy('timestamp')
+        .limit(8)
         .get()
         .then(snapshot => {
           snapshot.docs.forEach(doc => {
@@ -83,7 +83,7 @@
           })
         })
         .catch(err => {
-          console.log(err)
+          console.error(err)
         })
     }
   }

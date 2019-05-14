@@ -5,10 +5,10 @@ import 'vuetify/src/stylus/app.styl'
 import colors from 'vuetify/es5/util/colors'
 
 Vue.use(Vuetify, {
-  iconfont: 'fa',
+  iconfont: 'md',
   theme: {
-    primary: colors.red.accent3,
-    secondary: colors.cyan.accent2,
-    accent: colors.grey.lighten5
+    primary: colors.red.darken2,
+    secondary: colors.blue.accent3,
+    accent: colors.amber.accent3
   }
 })

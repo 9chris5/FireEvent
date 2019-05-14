@@ -18,15 +18,8 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['showSnackbar']),
-    makeSnack () {
-      this.showSnackbar({
-        type: 'info',
-        message: 'Weeeee!'
-      })
-    },
     anotherSnack () {
-      this.$store.commit('showSnackbar', {
+      this.$store.dispatch('SET_SNACKBAR', {
         type: 'error',
         message: 'Watch out boi! This is long as shit!!!'
       })

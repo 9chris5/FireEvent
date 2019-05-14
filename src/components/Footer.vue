@@ -1,15 +1,32 @@
 <template>
   <v-footer height="auto">
-    <v-card flat tile min-width="100%">
+
+    <v-card
+      flat
+      tile
+      min-width="100%"
+    >
+
         <v-card-title class="py-0">
+
           All rights reserved.
+
           <v-spacer></v-spacer>
+
           <span class="hidden-xs-only">Follow all the events via social media</span>
-          <v-btn v-for="icon in icons" :key="icon" icon>
-            <v-icon color="primary" size="24px">{{ icon }}</v-icon>
+
+          <v-btn
+            v-for="(icon, i) in icons"
+            :key="i"
+            icon
+          >
+            <v-icon color="primary" size="18px">{{ icon }}</v-icon>
           </v-btn>
+
         </v-card-title>
+
     </v-card>
+
   </v-footer>
 </template>
 

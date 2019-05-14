@@ -1,9 +1,26 @@
 <template>
-  <v-layout justify-center align-center fill-height :style="`background: url(${require('../assets/fireworks.jpg')}); background-position: center; background-size: cover`">
-    <v-card flat width="400" class="mx-4" style="background-color: rgba(0,0,0,.7)">
+
+  <v-layout
+    justify-center
+    align-center
+    fill-height
+    :style="`background: url(${require('../assets/fireworks.jpg')});
+              background-position: center;
+              background-size: cover`"
+  >
+
+    <v-card
+      flat
+      max-width="400"
+      min-width="350"
+      class="mx-4"
+      style="background-color: rgba(0,0,0,.75)"
+    >
+
       <v-card-title>
-        <h2 class="display-2 text-xs-center" style="width: 100%">Sign up</h2>
+        <h2 class="d-block display-2 text-xs-center" style="width: 100%">Sign up</h2>
       </v-card-title>
+
       <v-card-text>
         <v-form ref="form" v-model="form.valid" lazy-validation>
           <v-text-field v-model="form.email" :rules="form.rules.email" label="Email" required></v-text-field>
@@ -13,11 +30,11 @@
           <v-btn flat small round block to="/login">i have an account</v-btn>
         </v-form>
       </v-card-text>
+
     </v-card>
-    <v-snackbar v-model="snackbar.show" :timeout="8000" top="top" color="primary">
-      {{ snackbar.info }}
-    </v-snackbar>
+
   </v-layout>
+
 </template>
 
 <script>
